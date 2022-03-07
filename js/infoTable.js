@@ -1,17 +1,59 @@
+var machine = {
+    stymulus: [0, 1],
+    statesMachine: {
+        'A': {
+            0: {
+                response: 1,
+                nextState: 'B'
+            }
+        }
+    }
+};
+
+
+
 $(document).ready(function() {
+    var states;
+    var inputs;
+    
     $('#submitBtn').click(function() {
-        var states = $('#states').val().split(',');
-        var inputs = $('#inputs').val().split(',');
+        states = $('#states').val().split(',');
+        inputs = $('#inputs').val().split(',');
 
         if(states[0] == ''|| inputs[0] == ''){
             $('#states').val('');
             $('#inputs').val('');
         }else{
             cambiarVista("tableView");
-            loadHTML(createMealyTable2(states,inputs));
+            loadHTML("#table", createMealyTable(states,inputs));
         }
     });
+
+    $('#submitTable').click(function() {
+        for(let i = 0; i < states.length; i++){
+            for(let j = 0; j < inputs.length; j++){
+                let array = $('#'+states[i]+inputs[j]).val().split(',');
+                machine.statesMachine[states[i]][inputs[j]].nextState = array[0];
+                machine.statesMachine[states[i]][inputs[j]].response = array[1];
+            }
+        }
+        console.log(machine.statesMachine['A'][0].nextState);
+    });
 });
+
+function getInitialMachine(states, inputs){
+    machine.stymulus = inputs;
+    machine.statesMachine = {};
+    for(let i = 0; i < states.length; i++){
+        machine.statesMachine[states[i]] = {}; //A:{}
+        for(let j = 0; j <inputs.length; j++){
+            machine[statesMachine][states[i]][inputs[j]] =   {
+                response: null,
+                nextState: null
+            }
+        }
+    }
+}
 
 function cambiarVista(objetivo){
     $(".view").hide();
@@ -24,13 +66,14 @@ function cambiarVista(objetivo){
     );
 }
 
-function loadHTML(html){
-    $("#tableView").html(html);
+function loadHTML(element, HTML){
+    $(element).html(HTML);
 }
 
 
 function createMealyTable(states, inputs){
-    var html = "<table><thead><th></th>";
+    var html = ''
+    html += '<table><thead><th></th>';
     
     for(let i = 0; i<inputs.length; i++){
         html += "<th>"+inputs[i]+"</th>";
@@ -41,13 +84,12 @@ function createMealyTable(states, inputs){
         html += "<tr><th>"+states[i]+"</th>";
         
         for(let j = 0; j<inputs.length; j++){
-            html += '<td><input type="text"></td>';
+            html += '<td><input type="text" id='+states[i]+inputs[j]+'></td>';
         }
 
         html += "</tr>"
     }
     html += "</tbody></table>"
 
-    console.log(html);
     return html; 
 }
