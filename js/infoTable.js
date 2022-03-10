@@ -34,8 +34,8 @@ $(document).ready(function() {
         for(let i = 0; i < states.length; i++){
             for(let j = 0; j < inputs.length; j++){
                 let array = $('#'+states[i]+inputs[j]).val().split(',');
-                machine.statesMachine[states[i]][inputs[j]].nextState = array[0];
-                machine.statesMachine[states[i]][inputs[j]].response = array[1];
+                machine['statesMachine'][states[i]][inputs[j]]['nextState'] = array[0];
+                machine['statesMachine'][states[i]][inputs[j]]['response'] = array[1];
             }
         }
         console.log(machine);
