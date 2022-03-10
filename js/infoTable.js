@@ -24,6 +24,7 @@ $(document).ready(function() {
             $('#states').val('');
             $('#inputs').val('');
         }else{
+            getInitialMachine(states, inputs);
             cambiarVista("tableView");
             loadHTML("#table", createMealyTable(states,inputs));
         }
@@ -37,17 +38,19 @@ $(document).ready(function() {
                 machine.statesMachine[states[i]][inputs[j]].response = array[1];
             }
         }
-        console.log(machine.statesMachine['A'][0].nextState);
+        console.log(machine);
     });
 });
 
 function getInitialMachine(states, inputs){
+    machine = {};
     machine.stymulus = inputs;
     machine.statesMachine = {};
     for(let i = 0; i < states.length; i++){
-        machine.statesMachine[states[i]] = {}; //A:{}
+        console.log('State: ' + states[i]);
+        machine['statesMachine'][states[i]] = {}; //A:{}
         for(let j = 0; j <inputs.length; j++){
-            machine[statesMachine][states[i]][inputs[j]] =   {
+            machine['statesMachine'][states[i]][inputs[j]] =   {
                 response: null,
                 nextState: null
             }
