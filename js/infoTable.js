@@ -25,6 +25,7 @@ $(document).ready(function() {
             $('#states').val('');
             $('#inputs').val('');
         }else{
+            getInitialMachine(states, inputs);
             cambiarVista("tableViewMealy");
             loadHTML("#table", createMealyTable(states,inputs));
         }
@@ -34,11 +35,12 @@ $(document).ready(function() {
         for(let i = 0; i < states.length; i++){
             for(let j = 0; j < inputs.length; j++){
                 let array = $('#'+states[i]+inputs[j]).val().split(',');
-                machine.statesMachine[states[i]][inputs[j]].nextState = array[0];
-                machine.statesMachine[states[i]][inputs[j]].response = array[1];
+                machine['statesMachine'][states[i]][inputs[j]]['nextState'] = array[0];
+                machine['statesMachine'][states[i]][inputs[j]]['response'] = array[1];
             }
         }
-        console.log(machine.statesMachine['A'][0].nextState);
+        console.log(machine);
+        reduceMealyMachine();
     });
 
     $('#mealyBtn').click(function() {
@@ -47,12 +49,13 @@ $(document).ready(function() {
 });
 
 function getInitialMachine(states, inputs){
+    machine = {};
     machine.stymulus = inputs;
     machine.statesMachine = {};
     for(let i = 0; i < states.length; i++){
-        machine.statesMachine[states[i]] = {}; //A:{}
+        machine['statesMachine'][states[i]] = {}; //A:{}
         for(let j = 0; j <inputs.length; j++){
-            machine[statesMachine][states[i]][inputs[j]] =   {
+            machine['statesMachine'][states[i]][inputs[j]] =   {
                 response: null,
                 nextState: null
             }
@@ -97,4 +100,49 @@ function createMealyTable(states, inputs){
     html += "</tbody></table>"
 
     return html; 
+}
+
+function reduceMealyMachine(){
+    var firstPartition = createFirstPartitionMealy();
+    console.log(firstPartition);
+}
+
+function createFirstPartitionMealy() {
+    var firstPartition = [];
+    for (var state in machine['statesMachine']){
+        var tempList = [];
+        tempList.push(state);
+
+        for (var compState in machine['statesMachine']) {
+            if (compState != state && equalResponseMealyStates(machine['statesMachine'][state], machine['statesMachine'][compState])) {
+                tempList.push(compState);
+            }
+        }
+
+        tempList.sort()
+        if(!containsArray(firstPartition, tempList)){
+            firstPartition.push(tempList);
+        }
+    }
+    return firstPartition;
+}
+
+//stateA, stateB are dicts
+function equalResponseMealyStates(stateA, stateB) {
+    var equalResponse = true;
+    var stymulus = machine['stymulus'];
+    for (var s in stymulus) {
+        equalResponse = equalResponse && (stateA[s]['response'] == stateB[s]['response']);
+    }
+
+    return equalResponse;
+}
+
+function containsArray(firstPartition, newArray){
+    var contains = false;
+    for(var i = 0; i < firstPartition.length && !contains; i++){
+        contains = contains || (firstPartition[i].toString() === newArray.toString());
+    }
+
+    return contains;
 }
