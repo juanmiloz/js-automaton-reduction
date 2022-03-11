@@ -10,13 +10,14 @@ var machine = {
     }
 };
 
-
-
 $(document).ready(function() {
     var states;
     var inputs;
+    console.log("pasa");
+    cambiarVista("homePane");
+    //cambiarVista("tableViewMealy");
     
-    $('#submitBtn').click(function() {
+    $('#submitBtnMealy').click(function() {
         states = $('#states').val().split(',');
         inputs = $('#inputs').val().split(',');
 
@@ -24,12 +25,12 @@ $(document).ready(function() {
             $('#states').val('');
             $('#inputs').val('');
         }else{
-            cambiarVista("tableView");
+            cambiarVista("tableViewMealy");
             loadHTML("#table", createMealyTable(states,inputs));
         }
     });
 
-    $('#submitTable').click(function() {
+    $('#submitTableMealy').click(function() {
         for(let i = 0; i < states.length; i++){
             for(let j = 0; j < inputs.length; j++){
                 let array = $('#'+states[i]+inputs[j]).val().split(',');
@@ -39,6 +40,10 @@ $(document).ready(function() {
         }
         console.log(machine.statesMachine['A'][0].nextState);
     });
+
+    $('#mealyBtn').click(function() {
+        cambiarVista("dataViewMealy");
+    })
 });
 
 function getInitialMachine(states, inputs){
