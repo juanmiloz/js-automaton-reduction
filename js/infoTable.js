@@ -107,6 +107,38 @@ function reduceMealyMachine(){
     var finalPartition = getFinalPartition(firstPartition);
     console.log('Reduced Machine:');
     console.log(finalPartition);
+    reasignStatesMealy(finalPartition);
+    console.log(machineM);
+}
+
+function reasignStatesMealy(finalPartition) {
+    for(var state in machineM['statesMachine']){
+        var represent = getRepresentant(finalPartition, state);
+        if(state === represent){
+            for (let j = 0; j < machineM['stymulus'].length; j++) {
+                var stymul = machineM['stymulus'][j];
+                var currentNextState = machineM['statesMachine'][state][stymul]['nextState']
+                var representNextState = getRepresentant(finalPartition, currentNextState);
+                
+                if(!(representNextState === currentNextState)){
+                    machineM['statesMachine'][state][stymul]['nextState'] = representNextState;
+                }
+            }
+        }else{
+            delete machineM['statesMachine'][state];
+        }
+    }
+}
+
+function getRepresentant(partition, state) {
+    var represent = null;
+    for (let i = 0; i < partition.length; i++) {
+        if(partition[i].includes(state)){
+            represent = partition[i][0];
+        }
+    }
+    
+    return represent;
 }
 
 function getFinalPartition(nPartition) {
@@ -310,6 +342,26 @@ var machineM = {
             1: {
                 response: 1,
                 nextState: 'G'
+            }
+        },
+        'H': {
+            0: {
+                response: 1,
+                nextState: 'J'
+            },
+            1: {
+                response: 0,
+                nextState: 'B'
+            }
+        },
+        'J': {
+            0: {
+                response: 1,
+                nextState: 'H'
+            },
+            1: {
+                response: 0,
+                nextState: 'D'
             }
         }
     }
