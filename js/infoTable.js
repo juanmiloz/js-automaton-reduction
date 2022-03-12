@@ -104,17 +104,89 @@ function createMealyTable(states, inputs){
 
 function reduceMealyMachine(){
     var firstPartition = createFirstPartitionMealy();
-    console.log(firstPartition);
+    var finalPartition = getFinalPartition(firstPartition);
+    console.log('Reduced Machine:');
+    console.log(finalPartition);
+}
+
+function getFinalPartition(nPartition) {
+    var nextPartition = [];
+
+    for(var i = 0; i < nPartition.length; i++){
+        //Gets the block to compare and a representant value
+        var currentBlock = nPartition[i];
+        var represent = currentBlock[0];
+
+        //Creates 2 arrays in case of the current Block changes
+        var keepBlock = [];
+        var removedBlock = [];
+
+        //For every case the representan is going to be in keep block
+        keepBlock.push(represent);
+
+        //Gets the blocks where the nextStates are according to every input 
+        var outputBlocks = getOutputBlocks(nPartition, represent);
+
+        //Comparison of each element in the block with the representant and its output blocks
+        for (let j = 1; j < currentBlock.length; j++) {
+            var tempOutputBlocks = getOutputBlocks(nPartition, currentBlock[j]);
+
+            //In case the compared pair does not have the same output blocks, then in goes to the removed block
+            //which is a new block in the whole partition
+            if(compareArrays(tempOutputBlocks, outputBlocks)){
+                keepBlock.push(currentBlock[j]);
+            }else{
+                removedBlock.push(currentBlock[j]);
+            }
+        }
+
+        //If the new blocks are not empty then those are added to the partition
+        if(keepBlock.length != 0){
+            nextPartition.push(keepBlock);
+        }
+
+        if(removedBlock.length != 0){
+            nextPartition.push(removedBlock);
+        }
+    }
+
+    //If the partitions are equal the process ends, othewise keeps finding final partition
+    if(compareArrays(nPartition, nextPartition)){
+        return nPartition;
+    }else{
+        return getFinalPartition(nextPartition);
+    }
+}
+
+/*
+    For every input a S state, has a nextState S' state.
+    This function finds that S' state in the partition and returns the block where it is.
+    It creates a list with all the blocks for every S' that is a nextState of S.
+*/
+function getOutputBlocks(partition, state) {
+    var outputBlocks  = [];
+    for(var input in machineM['statesMachine'][state]){
+        var nextState = machineM['statesMachine'][state][input]['nextState'];
+        for(var block in partition){
+            if(partition[block].includes(nextState)){
+                if(!containsArray(outputBlocks, partition[block])){
+                    outputBlocks.push(partition[block]);
+                }
+            }
+        }
+    }
+    
+    return outputBlocks;
 }
 
 function createFirstPartitionMealy() {
     var firstPartition = [];
-    for (var state in machine['statesMachine']){
+    for (var state in machineM['statesMachine']){
         var tempList = [];
         tempList.push(state);
 
-        for (var compState in machine['statesMachine']) {
-            if (compState != state && equalResponseMealyStates(machine['statesMachine'][state], machine['statesMachine'][compState])) {
+        for (var compState in machineM['statesMachine']) {
+            if (compState != state && equalResponseMealyStates(machineM['statesMachine'][state], machineM['statesMachine'][compState])) {
                 tempList.push(compState);
             }
         }
@@ -138,11 +210,107 @@ function equalResponseMealyStates(stateA, stateB) {
     return equalResponse;
 }
 
-function containsArray(firstPartition, newArray){
+/*
+    Search if an Array of arrays contains a new array
+*/
+function containsArray(generalArray, newArray){
     var contains = false;
-    for(var i = 0; i < firstPartition.length && !contains; i++){
-        contains = contains || (firstPartition[i].toString() === newArray.toString());
+    for(var i = 0; i < generalArray.length && !contains; i++){
+        contains = contains || (generalArray[i].toString() === newArray.toString());
     }
 
     return contains;
 }
+
+function compareArrays(firstArray, secondArray) {
+    var equalArrays = firstArray.length === secondArray.length;
+    //If arrays are of the same size we compare them
+    if(equalArrays){
+        for (let i = 0; i < firstArray.length && equalArrays; i++) {
+            if(!(firstArray[i].toString() === secondArray[i].toString())){
+                equalArrays = false;
+            }
+        }
+    }
+
+    return equalArrays;
+}
+
+/*
+    Test Machine
+*/
+var machineM = {
+    stymulus: [0, 1],
+    statesMachine: {
+        'A': {
+            0: {
+                response: 0,
+                nextState: 'B'
+            },
+            1: {
+                response: 0,
+                nextState: 'C'
+            }
+        },
+        'B': {
+            0: {
+                response: 1,
+                nextState: 'C'
+            },
+            1: {
+                response: 1,
+                nextState: 'D'
+            }
+        },
+        'C': {
+            0: {
+                response: 0,
+                nextState: 'D'
+            },
+            1: {
+                response: 0,
+                nextState: 'E'
+            }
+        },
+        'D': {
+            0: {
+                response: 1,
+                nextState: 'C'
+            },
+            1: {
+                response: 1,
+                nextState: 'B'
+            }
+        },
+        'E': {
+            0: {
+                response: 1,
+                nextState: 'F'
+            },
+            1: {
+                response: 1,
+                nextState: 'E'
+            }
+        },
+        'F': {
+            0: {
+                response: 0,
+                nextState: 'G'
+            },
+            1: {
+                response: 0,
+                nextState: 'C'
+            }
+        },
+        'G': {
+            0: {
+                response: 1,
+                nextState: 'F'
+            },
+            1: {
+                response: 1,
+                nextState: 'G'
+            }
+        }
+    }
+};
