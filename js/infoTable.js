@@ -13,13 +13,23 @@ var machine = {
 $(document).ready(function() {
     var states;
     var inputs;
-    console.log("pasa");
     cambiarVista("homePane");
-    //cambiarVista("tableViewMealy");
+    
+    $('#mealyBtn').click(function() {
+        cambiarVista("dataViewMealy");
+    });
+
+    $('#mooreBtn').click(function() {
+        cambiarVista("dataViewMoore");
+    });
+
+    $('.exitBtn').click(function() {
+        cambiarVista("homePane");
+    });
     
     $('#submitBtnMealy').click(function() {
-        states = $('#states').val().split(',');
-        inputs = $('#inputs').val().split(',');
+        states = $('#statesMealy').val().split(',');
+        inputs = $('#inputsMealy').val().split(',');
 
         if(states[0] == ''|| inputs[0] == ''){
             $('#states').val('');
@@ -27,7 +37,7 @@ $(document).ready(function() {
         }else{
             getInitialMachine(states, inputs);
             cambiarVista("tableViewMealy");
-            loadHTML("#table", createMealyTable(states,inputs));
+            loadHTML("#tableMealy", createMealyTable(states,inputs));
         }
     });
 
@@ -43,9 +53,19 @@ $(document).ready(function() {
         reduceMealyMachine();
     });
 
-    $('#mealyBtn').click(function() {
-        cambiarVista("dataViewMealy");
-    })
+    $('#submitBtnMoore').click(function() {
+        states = $('#statesMoore').val().split(',');
+        inputs = $('#inputsMoore').val().split(',');
+
+        if(states[0] == ''|| inputs[0] == ''){
+            $('#states').val('');
+            $('#inputs').val('');
+        }else{
+            getInitialMachine(states, inputs);
+            cambiarVista("tableViewMoore");
+            loadHTML("#tableMoore", createMooreTable(states,inputs));
+        }
+    });
 });
 
 function getInitialMachine(states, inputs){
@@ -93,6 +113,35 @@ function createMealyTable(states, inputs){
         
         for(let j = 0; j<inputs.length; j++){
             html += '<td><input type="text" id='+states[i]+inputs[j]+'></td>';
+        }
+
+        html += "</tr>"
+    }
+    html += "</tbody></table>"
+
+    return html; 
+}
+
+function createMooreTable(states, inputs){
+    var html = ''
+    html += '<table><thead><th></th>';
+    
+    for(let i = 0; i<inputs.length; i++){
+        html += "<th>"+inputs[i]+"</th>";
+        if(i==inputs.length-1){
+            html += "<th>Response</th>"
+        }
+    }
+    html += "</thead><tbody>";
+    
+    for(let i = 0; i<states.length; i++){
+        html += "<tr><th>"+states[i]+"</th>";
+        
+        for(let j = 0; j<inputs.length; j++){
+            html += '<td><input type="text" id='+states[i]+inputs[j]+'></td>';
+            if(j==inputs.length-1){
+                html += '<td><input type="text" id='+states[i]+'r'+'></td>';
+            }
         }
 
         html += "</tr>"

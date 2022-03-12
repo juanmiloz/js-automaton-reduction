@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automata</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <!--<link rel="stylesheet" href="css/styles.css">-->
     <link rel="stylesheet" media="all" href="css/styles.css"/>
     <link rel="stylesheet" href="/css/style2.css">
 </head>
@@ -16,7 +15,7 @@
             <div class="col-auto p-5 text-center">
                 <div class="hero__title"><b>Automatas</b></div>
                 <button class="btn btn-secondary" id="mealyBtn">MEALY</button>
-                <button class="btn btn-secondary">MOORE</button>
+                <button class="btn btn-secondary" id="mooreBtn">MOORE</button>
             </div>
             <div class="cube"></div>
             <div class="cube"></div>
@@ -26,7 +25,9 @@
             <div class="cube"></div>
         </div>
 
+        <!--Relacionado con el automata de Mealy-->
         <div class="view" id="dataViewMealy">
+            <button type="button" class="btn btn-secondary exitBtn">exit</button>
             <div class="row justify-content-center align-items-center vh-100">
                 <div class="col-md-4 col-sm-6 text-center">
                     <h1>AUTOMATA DE MEALY</h1>
@@ -34,10 +35,10 @@
                     <p>Ingrese los posibles estados y entradas separadas por comas, el primer estado que ingrese sera tomado como el estado inical</p>
                     <form>
                         <div>
-                            <input type="text" id="states" class="form-control" placeholder="states" required autofocus>
+                            <input type="text" id="statesMealy" class="form-control" placeholder="states" required autofocus>
                         </div>
                         <div>
-                            <input type="text" id="inputs" class="form-control mt-4" placeholder="input">
+                            <input type="text" id="inputsMealy" class="form-control mt-4" placeholder="input">
                         </div>
                         
                         <button type="button" class="mt-4 btn btn-secondary" id="submitBtnMealy">send</button>
@@ -47,10 +48,46 @@
         </div>
 
         <div class="view" id="tableViewMealy">
+            <button type="button" class="btn btn-secondary exitBtn">exit</button>
             <div class="vh-100 row justify-content-center align-items-center">
                 <div class="col-auto text-center">
                     <span>Por favor ingrese el Estado y seguido de una coma la respuesta de estímulo</span>
-                    <div id="table"></div>
+                    <div id="tableMealy"></div>
+                    <button type="button" id="submitTableMealy" class="mt-4 btn-sm btn btn-secondary">Submit Info</button>
+                </div>
+            </div>
+        </div>
+
+        <!--Moore-->
+        <div class="view" id="dataViewMoore">
+            <button type="button" class="btn btn-secondary exitBtn">exit</button>
+            <div class="row justify-content-center align-items-center vh-100">
+                <div class="col-md-4 col-sm-6 text-center">
+                    <h1>AUTOMATA DE MOORE</h1>
+                    <p>una Máquina de Moore es un autómata de estados finitos para el cual la salida en un momento dado solo depende de su estado en ese momento, mientras la transición al siguiente estado depende del estado en que se encuentre y de la entrada introducida.
+                    </p>
+                    <p>Ingrese los posibles estados y entradas separadas por comas, el primer estado que ingrese sera tomado como el estado inical
+                    </p>
+                    <form>
+                        <div>
+                            <input type="text" id="statesMoore" class="form-control" placeholder="states" required autofocus>
+                        </div>
+                        <div>
+                            <input type="text" id="inputsMoore" class="form-control mt-4" placeholder="input">
+                        </div>
+                        
+                        <button type="button" class="mt-4 btn btn-secondary" id="submitBtnMoore">send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="view" id="tableViewMoore">
+            <button type="button" class="btn btn-secondary exitBtn">exit</button>
+            <div class="vh-100 row justify-content-center align-items-center">
+                <div class="col-auto text-center">
+                    <span>Por favor ingrese el Estado al cual sera guiado y ademas de esto las respuestas <br>asociadas a cada uno de los estados</span>
+                    <div id="tableMoore"></div>
                     <button type="button" id="submitTableMealy" class="mt-4 btn-sm btn btn-secondary">Submit Info</button>
                 </div>
             </div>

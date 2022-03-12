@@ -3,7 +3,12 @@
 body{
     font-family: 'Montserrat', sans-serif;
     color: #ffffff;
-    background-color: #175CE5;
+    background-color: #00194D;
+}
+
+button{
+    border: 10px;
+    border-color: black;
 }
 
 .box{
@@ -11,6 +16,10 @@ body{
     overflow: hidden;
 }
 
-#dataViewMealy{
-    background-color: #175CE5;
+.exitBtn{
+    position: absolute;
+    z-index: 1;
+    margin-left: 2rem;
+    margin-top: 2rem;
+    border-radius: 50pt;
 }
