@@ -10,6 +10,20 @@ var machine = {
     }
 };
 
+
+var machineMoore = {
+    stymulus: [0,1],
+    statesMachine: {
+        'A': {
+            response: 'A',
+            statesResponse: {
+                0:'A',
+                1:'B'
+            }
+        }
+    }
+}
+
 $(document).ready(function() {
     var states;
     var inputs;
@@ -53,6 +67,21 @@ $(document).ready(function() {
         reduceMealyMachine();
     });
 
+    $('#submitTableMoore').click(function(){
+        for(let i = 0; i < states.length; i++){
+            for(let j = 0; j < inputs.length; j++){
+                let value = $('#'+states[i]+inputs[j]).val();
+                machineMoore['statesMachine'][states[i]]['statesResponse'][inputs[j]] = value;
+                if(j == inputs.length-1){
+                    value = $('#'+states[i]+'r').val();
+                    machineMoore['statesMachine'][states[i]]['response'] = value;
+                }
+            }
+        }
+        console.log(machineMoore);
+        reduceMooreMachine();
+    });
+
     $('#submitBtnMoore').click(function() {
         states = $('#statesMoore').val().split(',');
         inputs = $('#inputsMoore').val().split(',');
@@ -61,7 +90,7 @@ $(document).ready(function() {
             $('#states').val('');
             $('#inputs').val('');
         }else{
-            getInitialMachine(states, inputs);
+            getInitialMachineMoore(states, inputs);
             cambiarVista("tableViewMoore");
             loadHTML("#tableMoore", createMooreTable(states,inputs));
         }
@@ -79,6 +108,21 @@ function getInitialMachine(states, inputs){
                 response: null,
                 nextState: null
             }
+        }
+    }
+}
+
+function getInitialMachineMoore(states,inputs){
+    machineMoore = {};
+    machineMoore.stymulus = inputs;
+    machineMoore.statesMachine = {};
+    for(let i = 0; i < states.length; i++){
+        machineMoore['statesMachine'][states[i]] = {
+            response: null,
+            statesResponse: {}
+        }
+        for(let j = 0; j < inputs.length; j++){
+            machineMoore['statesMachine'][states[i]]['statesResponse'][inputs[j]] = null;
         }
     }
 }
@@ -152,12 +196,19 @@ function createMooreTable(states, inputs){
 }
 
 function reduceMealyMachine(){
-    var firstPartition = createFirstPartitionMealy();
+    var firstPartition = createFirstPartitionMealy(true);
+    console.log(firstPartition);
     var finalPartition = getFinalPartition(firstPartition);
     console.log('Reduced Machine:');
     console.log(finalPartition);
     reasignStatesMealy(finalPartition);
     console.log(machineM);
+}
+
+function reduceMooreMachine(){
+    var firstPartition = createFirstPartitionMealy(false);
+    console.log("AQUI");
+    console.log(firstPartition);
 }
 
 function reasignStatesMealy(finalPartition) {
@@ -260,14 +311,20 @@ function getOutputBlocks(partition, state) {
     return outputBlocks;
 }
 
-function createFirstPartitionMealy() {
+function createFirstPartitionMealy(isMealy) {
     var firstPartition = [];
-    for (var state in machineM['statesMachine']){
+    var machineStates;
+    if(isMealy){
+        machineStates = machineM['statesMachine']
+    }else{
+        machineStates = machineMooreT['statesMachine']
+    }
+    for (var state in machineStates){
         var tempList = [];
         tempList.push(state);
 
-        for (var compState in machineM['statesMachine']) {
-            if (compState != state && equalResponseMealyStates(machineM['statesMachine'][state], machineM['statesMachine'][compState])) {
+        for (var compState in machineStates) {
+            if (compState != state && equalResponseMealyStates(machineStates[state], machineStates[compState], isMealy)) {
                 tempList.push(compState);
             }
         }
@@ -281,11 +338,15 @@ function createFirstPartitionMealy() {
 }
 
 //stateA, stateB are dicts
-function equalResponseMealyStates(stateA, stateB) {
+function equalResponseMealyStates(stateA, stateB, isMealy) {
     var equalResponse = true;
-    var stymulus = machine['stymulus'];
+    var stymulus = (isMealy)?machineM['stymulus']:machineMooreT['stymulus'];
     for (var s in stymulus) {
-        equalResponse = equalResponse && (stateA[s]['response'] == stateB[s]['response']);
+        if(isMealy){
+            equalResponse = equalResponse && (stateA[stymulus[s]]['response'] == stateB[stymulus[s]]['response']);
+        }else{
+            equalResponse = equalResponse && (machineMooreT['statesMachine'][stateA['statesResponse'][stymulus[s]]]['response'] === machineMooreT['statesMachine'][stateB['statesResponse'][stymulus[s]]]['response']);
+        }
     }
 
     return equalResponse;
@@ -411,6 +472,54 @@ var machineM = {
             1: {
                 response: 0,
                 nextState: 'D'
+            }
+        }
+    }
+};
+
+var machineMooreT = {
+    stymulus: [0, 1],
+    statesMachine: {
+        'A': {
+            response: 0,
+            statesResponse:{
+                0:'B',
+                1:'A'
+            }
+        },
+        'B': {
+            response: 0,
+            statesResponse:{
+                0:'C',
+                1:'B'
+            }
+        },
+        'C': {
+            response: 0,
+            statesResponse:{
+                0:'D',
+                1:'C'
+            }
+        },
+        'D': {
+            response: 0,
+            statesResponse:{
+                0:'E',
+                1:'D'
+            }
+        },
+        'E': {
+            response: 0,
+            statesResponse:{
+                0:'F',
+                1:'E'
+            }
+        },
+        'F': {
+            response: 1,
+            statesResponse:{
+                0:'E',
+                1:'F'
             }
         }
     }
