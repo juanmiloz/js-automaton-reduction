@@ -23,3 +23,12 @@ button{
     margin-top: 2rem;
     border-radius: 50pt;
 }
+
+.tableEdit{
+    border: 1px solid white;
+    border-collapse: collapse;
+}
+
+#partitionMachine{
+    padding: 20px;
+}
