@@ -1,4 +1,5 @@
 var machine = {
+    initialState: 'A',
     stymulus: [0, 1],
     statesMachine: {
         'A': {
@@ -12,6 +13,7 @@ var machine = {
 
 
 var machineMoore = {
+    initialState: 'A',
     stymulus: [0,1],
     statesMachine: {
         'A': {
@@ -22,7 +24,7 @@ var machineMoore = {
             }
         }
     }
-}
+};
 
 $(document).ready(function() {
     var states;
@@ -63,8 +65,11 @@ $(document).ready(function() {
                 machine['statesMachine'][states[i]][inputs[j]]['response'] = array[1];
             }
         }
+        machine = JSON.parse(JSON.stringify(machineM));
+        reduceMealyMachine(machine);
+        getConexusMealy();
+        console.log('Reduce and Connexus machine: ');
         console.log(machine);
-        reduceMealyMachine();
     });
 
     $('#submitTableMoore').click(function(){
@@ -90,7 +95,7 @@ $(document).ready(function() {
             $('#states').val('');
             $('#inputs').val('');
         }else{
-            getInitialMachineMoore(states, inputs);
+            getInitialmachineMoore(states, inputs);
             cambiarVista("tableViewMoore");
             loadHTML("#tableMoore", createMooreTable(states,inputs));
         }
@@ -112,7 +117,7 @@ function getInitialMachine(states, inputs){
     }
 }
 
-function getInitialMachineMoore(states,inputs){
+function getInitialmachineMoore(states,inputs){
     machineMoore = {};
     machineMoore.stymulus = inputs;
     machineMoore.statesMachine = {};
@@ -195,37 +200,38 @@ function createMooreTable(states, inputs){
     return html; 
 }
 
-function reduceMealyMachine(){
-    var firstPartition = createFirstPartitionMealy(true);
+function reduceMealyMachine(machine){
+    var firstPartition = createFirstPartitionMealy(machine, true);
+    console.log('First Partition:');
     console.log(firstPartition);
     var finalPartition = getFinalPartition(firstPartition);
-    console.log('Reduced Machine:');
+    console.log('Final Partition:');
     console.log(finalPartition);
-    reasignStatesMealy(finalPartition);
-    console.log(machineM);
+    reasignStatesMealy(machine, finalPartition);
 }
 
 function reduceMooreMachine(){
-    var firstPartition = createFirstPartitionMealy(false);
-    console.log("AQUI");
+    var firstPartition = createFirstPartitionMealy(machine, false);
     console.log(firstPartition);
 }
 
-function reasignStatesMealy(finalPartition) {
-    for(var state in machineM['statesMachine']){
+function reasignStatesMealy(machine, finalPartition) {
+    var states = Object.keys(machine['statesMachine']);
+    for(var s in states){
+        var state = states[s];
         var represent = getRepresentant(finalPartition, state);
         if(state === represent){
-            for (let j = 0; j < machineM['stymulus'].length; j++) {
-                var stymul = machineM['stymulus'][j];
-                var currentNextState = machineM['statesMachine'][state][stymul]['nextState']
+            for (let j = 0; j < machine['stymulus'].length; j++) {
+                var stymul = machine['stymulus'][j];
+                var currentNextState = machine['statesMachine'][state][stymul]['nextState']
                 var representNextState = getRepresentant(finalPartition, currentNextState);
                 
                 if(!(representNextState === currentNextState)){
-                    machineM['statesMachine'][state][stymul]['nextState'] = representNextState;
+                    machine['statesMachine'][state][stymul]['nextState'] = representNextState;
                 }
             }
         }else{
-            delete machineM['statesMachine'][state];
+            delete machine['statesMachine'][state];
         }
     }
 }
@@ -297,8 +303,8 @@ function getFinalPartition(nPartition) {
 */
 function getOutputBlocks(partition, state) {
     var outputBlocks  = [];
-    for(var input in machineM['statesMachine'][state]){
-        var nextState = machineM['statesMachine'][state][input]['nextState'];
+    for(var input in machine['statesMachine'][state]){
+        var nextState = machine['statesMachine'][state][input]['nextState'];
         for(var block in partition){
             if(partition[block].includes(nextState)){
                 if(!containsArray(outputBlocks, partition[block])){
@@ -311,11 +317,11 @@ function getOutputBlocks(partition, state) {
     return outputBlocks;
 }
 
-function createFirstPartitionMealy(isMealy) {
+function createFirstPartitionMealy(machine, isMealy) {
     var firstPartition = [];
     var machineStates;
     if(isMealy){
-        machineStates = machineM['statesMachine']
+        machineStates = machine['statesMachine']
     }else{
         machineStates = machineMooreT['statesMachine']
     }
@@ -340,7 +346,7 @@ function createFirstPartitionMealy(isMealy) {
 //stateA, stateB are dicts
 function equalResponseMealyStates(stateA, stateB, isMealy) {
     var equalResponse = true;
-    var stymulus = (isMealy)?machineM['stymulus']:machineMooreT['stymulus'];
+    var stymulus = (isMealy)?machine['stymulus']:machineMooreT['stymulus'];
     for (var s in stymulus) {
         if(isMealy){
             equalResponse = equalResponse && (stateA[stymulus[s]]['response'] == stateB[stymulus[s]]['response']);
@@ -350,6 +356,42 @@ function equalResponseMealyStates(stateA, stateB, isMealy) {
     }
 
     return equalResponse;
+}
+
+function getConexusMealy() {
+    var connectedStates = [];
+    var initialState = machine['initialState'];
+    var states = Object.keys(machine['statesMachine']);
+    var stymulus = machine['stymulus'];
+
+    connectedStates.push(initialState);
+    var c = 0;
+
+    while(c < connectedStates.length){
+        var connected = connectedStates[c];
+        for(var s in stymulus){
+            var stymul = stymulus[s];
+            var currentState = connected;
+            var i = 0;
+            do{
+                var nextState = machine['statesMachine'][currentState][stymul]['nextState'];
+                if(!connectedStates.includes(nextState)){
+                    connectedStates.push(nextState);
+                }
+                currentState = nextState;
+                i++;
+            } while(i < states.length);
+        }
+        c++;
+    }
+
+    if(!compareArrays(connectedStates, states)){
+        for (let j = 0; j < states.length; j++) {
+            if(!(connectedStates.includes(states[j]))){
+                delete machine['statesMachine'][states[j]];
+            }
+        }
+    }
 }
 
 /*
@@ -382,6 +424,7 @@ function compareArrays(firstArray, secondArray) {
     Test Machine
 */
 var machineM = {
+    initialState: 'A',
     stymulus: [0, 1],
     statesMachine: {
         'A': {
