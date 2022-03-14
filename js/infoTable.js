@@ -89,7 +89,7 @@ $(document).ready(function() {
                 }
             }
         }
-        console.log(machineMoore);
+        machineMoore = JSON.parse(JSON.stringify(machineMooreT));
         reduceMooreMachine();
         cambiarVista("tableResponseView");
         loadHTML("#tableResponse", responseTableMoore());
@@ -217,7 +217,7 @@ function reduceMealyMachine(machine){
     console.log(finalPartition);
     reasignStatesMealy(machine, finalPartition);
     console.log('Machine Mealy:');
-    console.log(machineM);
+    console.log(machine);
     loadHTML("#partitionMachine", showPartitions(organizePartition(firstPartition), organizePartition(finalPartition)));
 }   
 
@@ -225,8 +225,8 @@ function reduceMooreMachine(){
     var firstPartition = createFirstPartitionMealy(machine, false);
     console.log('First partition:');
     console.log(firstPartition);
-    var finalPartition = getFinalPartition(firstPartition);
-    console.log('Reduced Machine:');
+    var finalPartition = getFinalPartition(firstPartition, false);
+    console.log('Final Partition:');
     console.log(finalPartition);
     reasignStatesMoore(finalPartition);
     console.log('Machine Moore:');
@@ -301,7 +301,7 @@ function getRepresentant(partition, state) {
     return represent;
 }
 
-function getFinalPartition(nPartition) {
+function getFinalPartition(nPartition, isMealy) {
     var nextPartition = [];
 
     for(var i = 0; i < nPartition.length; i++){
@@ -317,7 +317,7 @@ function getFinalPartition(nPartition) {
         keepBlock.push(represent);
 
         //Gets the blocks where the nextStates are according to every input 
-        var outputBlocks = getOutputBlocks(nPartition, represent);
+        var outputBlocks = getOutputBlocks(nPartition, represent, isMealy);
 
         //Comparison of each element in the block with the representant and its output blocks
         for (let j = 1; j < currentBlock.length; j++) {
@@ -355,10 +355,11 @@ function getFinalPartition(nPartition) {
     This function finds that S' state in the partition and returns the block where it is.
     It creates a list with all the blocks for every S' that is a nextState of S.
 */
-function getOutputBlocks(partition, state) {
+function getOutputBlocks(partition, state, isMealy) {
     var outputBlocks  = [];
-    for(var input in machine['statesMachine'][state]){
-        var nextState = machine['statesMachine'][state][input]['nextState'];
+    var inputs = (isMealy) ? machine['statesMachine'][state]: machineMoore['statesMachine'][state]['statesResponse'];
+    for(var input in inputs){
+        var nextState = (isMealy) ? machine['statesMachine'][state][input]['nextState'] : machineMoore['statesMachine'][state]['statesResponse'][input];
         for(var block in partition){
             if(partition[block].includes(nextState)){
                 if(!containsArray(outputBlocks, partition[block])){
