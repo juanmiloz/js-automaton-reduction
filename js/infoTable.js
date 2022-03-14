@@ -46,18 +46,20 @@ $(document).ready(function() {
     $('#submitBtnMealy').click(function() {
         states = $('#statesMealy').val().split(',');
         inputs = $('#inputsMealy').val().split(',');
-
         if(states[0] == ''|| inputs[0] == ''){
             $('#states').val('');
             $('#inputs').val('');
         }else{
             getInitialMachine(states, inputs);
-            cambiarVista("tableViewMealy");
+            cambiarVista("tableViewMealy");    
             loadHTML("#tableMealy", createMealyTable(states,inputs));
+            console.log(machineM);
         }
     });
 
     $('#submitTableMealy').click(function() {
+        console.log(machineM);
+        
         for(let i = 0; i < states.length; i++){
             for(let j = 0; j < inputs.length; j++){
                 let array = $('#'+states[i]+inputs[j]).val().split(',');
@@ -70,7 +72,11 @@ $(document).ready(function() {
         getConexusMealy();
         console.log('Reduce and Connexus machine: ');
         console.log(machine);
+
+        cambiarVista("tableResponseView");
+        loadHTML("#tableResponse", responseTableMealy());
     });
+
 
     $('#submitTableMoore').click(function(){
         for(let i = 0; i < states.length; i++){
@@ -85,6 +91,8 @@ $(document).ready(function() {
         }
         console.log(machineMoore);
         reduceMooreMachine();
+        cambiarVista("tableResponseView");
+        loadHTML("#tableResponse", responseTableMoore());
     });
 
     $('#submitBtnMoore').click(function() {
@@ -164,9 +172,9 @@ function createMealyTable(states, inputs){
             html += '<td><input type="text" id='+states[i]+inputs[j]+'></td>';
         }
 
-        html += "</tr>"
+        html += "</tr>";
     }
-    html += "</tbody></table>"
+    html += "</tbody></table>";
 
     return html; 
 }
@@ -208,11 +216,37 @@ function reduceMealyMachine(machine){
     console.log('Final Partition:');
     console.log(finalPartition);
     reasignStatesMealy(machine, finalPartition);
-}
+    console.log('Machine Mealy:');
+    console.log(machineM);
+    loadHTML("#partitionMachine", showPartitions(organizePartition(firstPartition), organizePartition(finalPartition)));
+}   
 
 function reduceMooreMachine(){
     var firstPartition = createFirstPartitionMealy(machine, false);
+    console.log('First partition:');
     console.log(firstPartition);
+    var finalPartition = getFinalPartition(firstPartition);
+    console.log('Reduced Machine:');
+    console.log(finalPartition);
+    reasignStatesMoore(finalPartition);
+    console.log('Machine Moore:');
+    console.log(machineMooreT);
+    loadHTML("#partitionMachine", showPartitions(organizePartition(firstPartition), organizePartition(finalPartition)));
+}
+
+function showPartitions(firstPartition, finalPartition){
+    html = '<h4>Primera particion:</h4>'+firstPartition;
+    html += '<br><h4>Particion final:</h4>'+finalPartition +'<br>';
+    return html;
+}
+
+function organizePartition(partition){
+    partitionString = '{ ';
+    for(let i = 0; i < partition.length; i++){
+        partitionString += (i!=partition.length-1)?'{' + partition[i] + '},':'{' + partition[i] + '}';
+    }
+    partitionString += ' }';
+    return partitionString;
 }
 
 function reasignStatesMealy(machine, finalPartition) {
@@ -232,6 +266,26 @@ function reasignStatesMealy(machine, finalPartition) {
             }
         }else{
             delete machine['statesMachine'][state];
+        }
+    }
+}
+
+function reasignStatesMoore(finalPartition){
+    for(var state in machineMooreT['statesMachine']){
+        var represent = getRepresentant(finalPartition, state);
+        if(state === represent){
+            for(let j = 0; j < machineMooreT['stymulus'].length; j++){
+                var stymul = machineMooreT['stymulus'][j];
+                
+                var currentNextState = machineMooreT['statesMachine'][state]['statesResponse'][stymul];
+                var representNextState = getRepresentant(finalPartition, currentNextState);
+
+                if(!(representNextState === currentNextState)){
+                    machineMooreT['statesMachine'][state]['statesResponse'][stymul] = representNextState;
+                }
+            }
+        }else{
+            delete machineMooreT['statesMachine'][state]
         }
     }
 }
@@ -418,6 +472,62 @@ function compareArrays(firstArray, secondArray) {
     }
 
     return equalArrays;
+}
+
+function responseTableMealy(){
+    var html = ''
+    html += '<table class="tableEdit" "id="tableResponse"><thead><th class="tableEdit"></th>';
+    
+    for(let i = 0; i<machineM['stymulus'].length; i++){
+        html += '<th class="tableEdit">'+machineM['stymulus'][i]+"</th>";
+    }
+    html += "</thead><tbody>";
+    
+    for(let i = 0; i<Object.keys(machineM['statesMachine']).length; i++){
+        html += '<tr class="tableEdit"><th>'+Object.keys(machineM["statesMachine"])[i]+'</th>';
+        
+        for(let j = 0; j<machineM['stymulus'].length; j++){
+            var actualState = Object.keys(machineM['statesMachine'])[i];
+            let nextStatePrint = machineM['statesMachine'][actualState][machineM['stymulus'][j]]['nextState'];
+            let responsePrint = machineM['statesMachine'][actualState][machineM['stymulus'][j]]['response'];
+            html += '<td class="tableEdit"  >'+nextStatePrint+','+responsePrint+'</td>';
+        }
+
+        html += "</tr>"
+    }
+    html += "</tbody></table>"
+    return html;
+}
+
+function responseTableMoore(){
+    var html = ''
+    html += '<table class="tableEdit" "id="tableResponse"><thead><th class="tableEdit"></th>';
+    
+    for(let i = 0; i<machineMooreT['stymulus'].length; i++){
+        html += '<th class="tableEdit">'+machineMooreT['stymulus'][i]+"</th>";
+        if(i == machineMooreT['stymulus'].length-1){
+            html += "<th>Response</th>"
+        }
+    }
+    html += "</thead><tbody>";
+    
+    for(let i = 0; i<Object.keys(machineMooreT['statesMachine']).length; i++){
+        html += '<tr class="tableEdit"><th>'+Object.keys(machineM["statesMachine"])[i]+'</th>';
+        
+        for(let j = 0; j<machineMooreT['stymulus'].length; j++){
+            var actualState = Object.keys(machineMooreT['statesMachine'])[i];
+            let nextStatePrint = machineMooreT['statesMachine'][actualState]['statesResponse'][machineMooreT['stymulus'][j]];
+            html += '<td class="tableEdit"  >'+nextStatePrint+'</td>';
+            if(j == machineMooreT['stymulus'].length-1){
+                let responsePrint = machineMooreT['statesMachine'][actualState]['response'];
+                html += '<td class="tableEdit" >'+responsePrint +'</td>'
+            }
+        }
+
+        html += "</tr>"
+    }
+    html += "</tbody></table>"
+    return html;
 }
 
 /*
