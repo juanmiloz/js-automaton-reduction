@@ -68,6 +68,7 @@ $(document).ready(function() {
             }
         }
         machine = JSON.parse(JSON.stringify(machineM));
+        
         reduceMealyMachine(machine);
         getConexusMealy();
         console.log('Reduce and Connexus machine: ');
@@ -90,7 +91,12 @@ $(document).ready(function() {
             }
         }
         machineMoore = JSON.parse(JSON.stringify(machineMooreT));
+
         reduceMooreMachine();
+        getConexusMoore();
+        console.log('Reduce and Connexus machine: ');
+        console.log(machineMoore);
+
         cambiarVista("tableResponseView");
         loadHTML("#tableResponse", responseTableMoore());
     });
@@ -444,6 +450,42 @@ function getConexusMealy() {
         for (let j = 0; j < states.length; j++) {
             if(!(connectedStates.includes(states[j]))){
                 delete machine['statesMachine'][states[j]];
+            }
+        }
+    }
+}
+
+function getConexusMoore() {
+    var connectedStates = [];
+    var initialState = machineMoore['initialState'];
+    var states = Object.keys(machineMoore['statesMachine']);
+    var stymulus = machineMoore['stymulus'];
+
+    connectedStates.push(initialState);
+    var c = 0;
+
+    while(c < connectedStates.length){
+        var connected = connectedStates[c];
+        for(var s in stymulus){
+            var stymul = stymulus[s];
+            var currentState = connected;
+            var i = 0;
+            do{
+                var nextState = machineMoore['statesMachine'][currentState]['statesResponse'][stymul];
+                if(!connectedStates.includes(nextState)){
+                    connectedStates.push(nextState);
+                }
+                currentState = nextState;
+                i++;
+            } while(i < states.length);
+        }
+        c++;
+    }
+
+    if(!compareArrays(connectedStates, states)){
+        for (let j = 0; j < states.length; j++) {
+            if(!(connectedStates.includes(states[j]))){
+                delete machineMoore['statesMachine'][states[j]];
             }
         }
     }
