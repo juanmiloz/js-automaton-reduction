@@ -1,3 +1,6 @@
+/**
+ * this is our machineMealy
+ */
 var machine = {
     stymulus: [0, 1],
     statesMachine: {
@@ -11,6 +14,9 @@ var machine = {
 };
 
 
+/**
+ * this is our machineMoore
+ */
 var machineMoore = {
     stymulus: [0,1],
     statesMachine: {
@@ -103,6 +109,11 @@ $(document).ready(function() {
     });
 });
 
+/**
+ * This method prepares the mealy machine from the data entered by the user.
+ * @param {array} states all the states of the machine 
+ * @param {array} inputs all the inputs of the machine
+ */
 function getInitialMachine(states, inputs){
     machine = {};
     machine.stymulus = inputs;
@@ -117,7 +128,11 @@ function getInitialMachine(states, inputs){
         }
     }
 }
-
+/**
+ * This method prepares the moore machine from the data entered by the user.
+ * @param {array} states 
+ * @param {array} inputs 
+ */
 function getInitialMachineMoore(states,inputs){
     machineMoore = {};
     machineMoore.stymulus = inputs;
@@ -133,6 +148,10 @@ function getInitialMachineMoore(states,inputs){
     }
 }
 
+/**
+ * This method allows us to change the current view 
+ * @param {String} objetivo its the name of the new view
+ */
 function cambiarVista(objetivo){
     $(".view").hide();
     $(".view").each(
@@ -144,10 +163,15 @@ function cambiarVista(objetivo){
     );
 }
 
+
+/**
+ * This method will allow us to add to an html element a new html code to modify the view.
+ * @param {String} element name of the element to modify
+ * @param {String} HTML is the html code of which the element will be composed. 
+ */
 function loadHTML(element, HTML){
     $(element).html(HTML);
 }
-
 
 function createMealyTable(states, inputs){
     var html = ''
