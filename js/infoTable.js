@@ -124,8 +124,8 @@ $(document).ready(function() {
 
 /**
  * This method prepares the mealy machine from the data entered by the user.
- * @param {array} states all the states of the machine 
- * @param {array} inputs all the inputs of the machine
+ * @param {array} states all the states of the machine Mealy
+ * @param {array} inputs all the inputs of the machine Mealy
  */
 function getInitialMachine(states, inputs){
     machine = {};
@@ -144,8 +144,8 @@ function getInitialMachine(states, inputs){
 
 /**
  * This method prepares the moore machine from the data entered by the user.
- * @param {array} states 
- * @param {array} inputs 
+ * @param {array} states all the states of the machine Moore 
+ * @param {array} inputs all the inputs of the machine Moore
  */
 function getInitialmachineMoore(states,inputs){
     machineMoore = {};
@@ -187,6 +187,11 @@ function loadHTML(element, HTML){
     $(element).html(HTML);
 }
 
+/**
+ * This method allows to create the html code of the table for the mealy machine from the states and inputs.
+ * @param {array} states all the states of the machine Mealy
+ * @param {array} inputs all the inputs of the machine Mealy
+ */
 function createMealyTable(states, inputs){
     var html = ''
     html += '<table><thead><th></th>';
@@ -210,6 +215,11 @@ function createMealyTable(states, inputs){
     return html; 
 }
 
+/**
+ * This method allows to create the html code of the table for the moore machine from the states and inputs.
+ * @param {array} states all the states of the machine Moore
+ * @param {array} inputs all the inputs of the machine Moore
+ */
 function createMooreTable(states, inputs){
     var html = ''
     html += '<table><thead><th></th>';
@@ -238,7 +248,10 @@ function createMooreTable(states, inputs){
 
     return html; 
 }
-
+/**
+ * This method is in charge of handling all the machine Mealy reduction.
+ * @param {Object} machine Object containing the mealy machine from dictionaries and arrays
+ */
 function reduceMealyMachine(machine){
     var firstPartition = createFirstPartitionMealy(machine, true);
     console.log('First Partition:');
@@ -252,6 +265,10 @@ function reduceMealyMachine(machine){
     loadHTML("#partitionMachine", showPartitions(organizePartition(firstPartition), organizePartition(finalPartition)));
 }   
 
+/**
+ * This method is in charge of handling all the machine Moore reduction.
+ * @param {dic} machine Object containing the Moore machine from dictionaries and arrays
+ */
 function reduceMooreMachine(){
     var firstPartition = createFirstPartitionMealy(machine, false);
     console.log('First partition:');
@@ -265,12 +282,23 @@ function reduceMooreMachine(){
     loadHTML("#partitionMachine", showPartitions(organizePartition(firstPartition), organizePartition(finalPartition)));
 }
 
+/**
+ * This method is in charge of creating the html with the first and the last partition.
+ * @param {*} firstPartition the first partition of de machine
+ * @param {*} finalPartition the last partition of de machine
+ * @returns {String} html code with the necessary code to display the initial and final partition
+ */
 function showPartitions(firstPartition, finalPartition){
     html = '<h4>Primera particion:</h4>'+firstPartition;
     html += '<br><h4>Particion final:</h4>'+finalPartition +'<br>';
     return html;
 }
 
+/**
+ * This method is in charge of organizing a partition in a string
+ * @param {array} partition any partition
+ * @returns {String} Partition organized in a string
+ */
 function organizePartition(partition){
     partitionString = '{ ';
     for(let i = 0; i < partition.length; i++){
@@ -280,6 +308,11 @@ function organizePartition(partition){
     return partitionString;
 }
 
+/**
+ * This method is in charge of reassigning the names to the final partition of Mealy.
+ * @param {Object} machine Object containing the Mealy machine from dictionaries and arrays
+ * @param {Array} finalPartition final partition of machine Mealy
+ */
 function reasignStatesMealy(machine, finalPartition) {
     var states = Object.keys(machine['statesMachine']);
     for(var s in states){
@@ -301,6 +334,10 @@ function reasignStatesMealy(machine, finalPartition) {
     }
 }
 
+/**
+ * This method is in charge of reassigning the names to the final partition of Moore.
+ * @param {Array} finalPartition final partition of machine Moore
+ */
 function reasignStatesMoore(finalPartition){
     for(var state in machineMoore['statesMachine']){
         var represent = getRepresentant(finalPartition, state);
@@ -321,6 +358,12 @@ function reasignStatesMoore(finalPartition){
     }
 }
 
+/**
+ * this method obtains the representative of a partition 
+ * @param {array} partition final partition of machine
+ * @param {Object} state one state from partition
+ * @returns {Object} retunr one representant for de block
+ */
 function getRepresentant(partition, state) {
     var represent = null;
     for (let i = 0; i < partition.length; i++) {
@@ -381,11 +424,15 @@ function getFinalPartition(nPartition, isMealy) {
     }
 }
 
-/*
-    For every input a S state, has a nextState S' state.
-    This function finds that S' state in the partition and returns the block where it is.
-    It creates a list with all the blocks for every S' that is a nextState of S.
-*/
+/**
+ * For every input a S state, has a nextState S' state.
+ * This function finds that S' state in the partition and returns the block where it is.
+ * It creates a list with all the blocks for every S' that is a nextState of S.
+ * @param {array} partition final partition of machine
+ * @param {Object} state one state from partition
+ * @param {boolean} isMealy gives us the type of machine, if is true machine is Mealy else machine is Moore
+ * @returns {array} obtain one block
+ */
 function getOutputBlocks(partition, state, isMealy) {
     var outputBlocks  = [];
     var inputs = (isMealy) ? machine['statesMachine'][state]: machineMoore['statesMachine'][state]['statesResponse'];
@@ -528,6 +575,12 @@ function containsArray(generalArray, newArray){
     return contains;
 }
 
+/**
+ * This method performs a comparison between arrays to see if they are identical or not.
+ * @param {array} firstArray first array to compare
+ * @param {array} secondArray second array to compare
+ * @returns {boolean} if both arrays are equal returns true else return false
+ */
 function compareArrays(firstArray, secondArray) {
     var equalArrays = firstArray.length === secondArray.length;
     //If arrays are of the same size we compare them
@@ -542,6 +595,11 @@ function compareArrays(firstArray, secondArray) {
     return equalArrays;
 }
 
+/**
+ * This method returns an html with the format of a mealy machine with the content 
+ * of the final partition already reallocated. 
+ * @returns {String} html code with all the content of the final tables Mealy
+ */
 function responseTableMealy(){
     var html = ''
     html += '<table class="tableEdit" "id="tableResponse"><thead><th class="tableEdit"></th>';
@@ -567,6 +625,11 @@ function responseTableMealy(){
     return html;
 }
 
+/**
+ * This method returns an html with the format of a Moore machine with the content 
+ * of the final partition already reallocated. 
+ * @returns {String} html code with all the content of the final tables Moore
+ */
 function responseTableMoore(){
     var html = ''
     html += '<table class="tableEdit" "id="tableResponse"><thead><th class="tableEdit"></th>';
