@@ -73,7 +73,7 @@ $(document).ready(function() {
                 machine['statesMachine'][states[i]][inputs[j]]['response'] = array[1];
             }
         }
-        machine = JSON.parse(JSON.stringify(machineM));
+        //machine = JSON.parse(JSON.stringify(machineM));
         
         reduceMealyMachine(machine);
         getConexusMealy();
@@ -96,7 +96,7 @@ $(document).ready(function() {
                 }
             }
         }
-        machineMoore = JSON.parse(JSON.stringify(machineMooreT));
+        //machineMoore = JSON.parse(JSON.stringify(machineMooreT));
 
         reduceMooreMachine();
         getConexusMoore();
@@ -131,6 +131,7 @@ function getInitialMachine(states, inputs){
     machine = {};
     machine.stymulus = inputs;
     machine.statesMachine = {};
+    machine.initialState = states[0];
     for(let i = 0; i < states.length; i++){
         machine['statesMachine'][states[i]] = {}; //A:{}
         for(let j = 0; j <inputs.length; j++){
@@ -151,6 +152,7 @@ function getInitialmachineMoore(states,inputs){
     machineMoore = {};
     machineMoore.stymulus = inputs;
     machineMoore.statesMachine = {};
+    machineMoore['initialState'] = states[0];
     for(let i = 0; i < states.length; i++){
         machineMoore['statesMachine'][states[i]] = {
             response: null,
@@ -256,7 +258,7 @@ function reduceMealyMachine(machine){
     var firstPartition = createFirstPartitionMealy(machine, true);
     console.log('First Partition:');
     console.log(firstPartition);
-    var finalPartition = getFinalPartition(firstPartition);
+    var finalPartition = getFinalPartition(firstPartition, true);
     console.log('Final Partition:');
     console.log(finalPartition);
     reasignStatesMealy(machine, finalPartition);
@@ -395,7 +397,7 @@ function getFinalPartition(nPartition, isMealy) {
 
         //Comparison of each element in the block with the representant and its output blocks
         for (let j = 1; j < currentBlock.length; j++) {
-            var tempOutputBlocks = getOutputBlocks(nPartition, currentBlock[j]);
+            var tempOutputBlocks = getOutputBlocks(nPartition, currentBlock[j], isMealy);
 
             //In case the compared pair does not have the same output blocks, then in goes to the removed block
             //which is a new block in the whole partition
@@ -420,7 +422,7 @@ function getFinalPartition(nPartition, isMealy) {
     if(compareArrays(nPartition, nextPartition)){
         return nPartition;
     }else{
-        return getFinalPartition(nextPartition);
+        return getFinalPartition(nextPartition, isMealy);
     }
 }
 
@@ -435,7 +437,7 @@ function getFinalPartition(nPartition, isMealy) {
  */
 function getOutputBlocks(partition, state, isMealy) {
     var outputBlocks  = [];
-    var inputs = (isMealy) ? machine['statesMachine'][state]: machineMoore['statesMachine'][state]['statesResponse'];
+    var inputs = (isMealy) ? machine['statesMachine'][state] : machineMoore['statesMachine'][state]['statesResponse'];
     for(var input in inputs){
         var nextState = (isMealy) ? machine['statesMachine'][state][input]['nextState'] : machineMoore['statesMachine'][state]['statesResponse'][input];
         for(var block in partition){
@@ -534,13 +536,16 @@ function getConexusMoore() {
     var stymulus = machineMoore['stymulus'];
 
     connectedStates.push(initialState);
+    console.log(connectedStates);
     var c = 0;
 
     while(c < connectedStates.length){
         var connected = connectedStates[c];
+        console.log(connected);
         for(var s in stymulus){
             var stymul = stymulus[s];
             var currentState = connected;
+            console.log(currentState);
             var i = 0;
             do{
                 var nextState = machineMoore['statesMachine'][currentState]['statesResponse'][stymul];
@@ -762,6 +767,7 @@ var machineM = {
 };
 
 var machineMooreT = {
+    initialState: 'A',
     stymulus: [0, 1],
     statesMachine: {
         'A': {
