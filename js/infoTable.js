@@ -73,7 +73,7 @@ $(document).ready(function() {
                 machine['statesMachine'][states[i]][inputs[j]]['response'] = array[1];
             }
         }
-        //machine = JSON.parse(JSON.stringify(machineM));
+        machine = JSON.parse(JSON.stringify(machineM));
         
         reduceMealyMachine(machine);
         getConexusMealy();
