@@ -73,7 +73,7 @@ $(document).ready(function() {
                 machine['statesMachine'][states[i]][inputs[j]]['response'] = array[1];
             }
         }
-        machine = JSON.parse(JSON.stringify(machineM));
+        //machine = JSON.parse(JSON.stringify(machineM));
         
         reduceMealyMachine(machine);
         getConexusMealy();
@@ -97,7 +97,7 @@ $(document).ready(function() {
             }
         }
         //machineMoore = JSON.parse(JSON.stringify(machineMooreT));
-
+        
         reduceMooreMachine();
         getConexusMoore();
         console.log('Reduce and Connexus machine: ');
@@ -486,6 +486,7 @@ function equalResponseMealyStates(stateA, stateB, isMealy) {
         if(isMealy){
             equalResponse = equalResponse && (stateA[stymulus[s]]['response'] == stateB[stymulus[s]]['response']);
         }else{
+            console.log('Flag');
             equalResponse = equalResponse && (machineMoore['statesMachine'][stateA['statesResponse'][stymulus[s]]]['response'] === machineMoore['statesMachine'][stateB['statesResponse'][stymulus[s]]]['response']);
         }
     }
@@ -609,18 +610,18 @@ function responseTableMealy(){
     var html = ''
     html += '<table class="tableEdit" "id="tableResponse"><thead><th class="tableEdit"></th>';
     
-    for(let i = 0; i<machineM['stymulus'].length; i++){
-        html += '<th class="tableEdit">'+machineM['stymulus'][i]+"</th>";
+    for(let i = 0; i<machine['stymulus'].length; i++){
+        html += '<th class="tableEdit">'+machine['stymulus'][i]+"</th>";
     }
     html += "</thead><tbody>";
     
-    for(let i = 0; i<Object.keys(machineM['statesMachine']).length; i++){
-        html += '<tr class="tableEdit"><th>'+Object.keys(machineM["statesMachine"])[i]+'</th>';
+    for(let i = 0; i<Object.keys(machine['statesMachine']).length; i++){
+        html += '<tr class="tableEdit"><th>'+Object.keys(machine["statesMachine"])[i]+'</th>';
         
-        for(let j = 0; j<machineM['stymulus'].length; j++){
-            var actualState = Object.keys(machineM['statesMachine'])[i];
-            let nextStatePrint = machineM['statesMachine'][actualState][machineM['stymulus'][j]]['nextState'];
-            let responsePrint = machineM['statesMachine'][actualState][machineM['stymulus'][j]]['response'];
+        for(let j = 0; j<machine['stymulus'].length; j++){
+            var actualState = Object.keys(machine['statesMachine'])[i];
+            let nextStatePrint = machine['statesMachine'][actualState][machine['stymulus'][j]]['nextState'];
+            let responsePrint = machine['statesMachine'][actualState][machine['stymulus'][j]]['response'];
             html += '<td class="tableEdit"  >'+nextStatePrint+','+responsePrint+'</td>';
         }
 
